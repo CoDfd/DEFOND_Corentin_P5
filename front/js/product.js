@@ -94,7 +94,7 @@ function modifyCart (canap) {
 function collectCart (canap){
     //Initialization of the cart
     let cart = [];
-    // testing if there is not an existing cart for this canap
+    //Testing if there is not an existing cart for this canap
     if(localStorage.getItem(canap._id) == null){
         //Set up empty cart
         canap.colors.forEach(color => {

@@ -38,7 +38,7 @@ fetch('http://localhost:3000/api/products/', requestOptions)
     });
 
 //Display of products : inside request
-function afficheProduct(canaps){
+function afficheProduct (canaps){
     let displayCatalogue = document.getElementById('items');
     canaps.forEach(canap => {
         let canapArticle = createArticle(canap);
