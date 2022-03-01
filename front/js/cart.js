@@ -22,15 +22,15 @@ fetch('http://localhost:3000/api/products/', requestOptions)
         displayCart(value);
         displayPrice(value);
         modifyQuantities(value);
-        //deleteItem(value);
+        deleteItem(value);
 
         //envirronnement de test
-        const cartTotal = document.getElementsByClassName(`cart__item`);
+        /*const cartTotal = document.getElementsByClassName(`cart__item`);
         console.log(cartTotal);
         const cart1 = cartTotal[0];
         console.log(cart1);
         const dataid = cart1.getAttribute(`data-id`);
-        console.log(dataid);
+        console.log(dataid);*/
         //fin de l'envirronnement de test
 
     })
@@ -40,12 +40,34 @@ fetch('http://localhost:3000/api/products/', requestOptions)
 
 //Display function of the cart
 function displayCart (canaps){
+    //initializing the empty cart
+    let emptyCart = true;
+    let emptyMsgDisplay = false;
+    //skim through the canaps    
     canaps.forEach(canap => {
         //Testing if there is not an existing cart for this canap
         if(localStorage.getItem(canap._id) != null){
             createArticlesCart(canap);
-        }  
+            if (emptyCart == true){
+                emptyCart = false;
+            }
+        } 
     });
+    //Display an empty cart if so
+    if (emptyCart == true){
+        let cart = document.getElementById(`cart__items`);
+        let emptyMsg = document.createElement(`p`);
+        emptyMsg.setAttribute(`id`,`emptyMessage`)
+        emptyMsg.textContent = `Panier vide`;
+        cart.appendChild(emptyMsg);
+        emptyMsgDisplay = true;
+    } else {
+        //Case we have to remove the empty message
+        if (emptyMsgDisplay == true){
+            document.getElementById(`emptyMessage`).remove();
+            emptyMsgDisplay = false;
+        }
+    }
 }
 
 //createArticlesCart : créer les articles et les insère dans un container
@@ -169,10 +191,8 @@ function modifyQuantities (canaps){
     const cartTotal = document.getElementsByClassName(`cart__item`);
     //parcours du panier affiché
     for (let item of cartTotal) {
-        console.log(item);
         //on récupère l'id et la couleur
         const itemId = item.getAttribute(`data-id`);
-        console.log(`itemId`);
         const itemColor = item.getAttribute(`data-color`);
         //on écoute l'évennement de modification du champs value
         const inputQte = item.querySelector(`input[name='itemQuantity']`);
@@ -195,5 +215,42 @@ function modifyQuantities (canaps){
 
 //Deleting an item from the cart
 function deleteItem (canaps){
-    
+    let cartTotal = document.getElementsByClassName(`cart__item`);
+    //parcours du panier affiché
+    for (let item of cartTotal) {
+        //on récupère l'id et la couleur
+        const itemId = item.getAttribute(`data-id`);
+        const itemColor = item.getAttribute(`data-color`);
+        //on écoute l'évennement de modification du champs value
+        const itemDlt = item.querySelector(`.deleteItem`);
+        itemDlt.addEventListener('click',function(){
+            //Collecting the cart from local storage
+            let cart = JSON.parse(localStorage.getItem(itemId));
+            //Modification of the cart
+            let shouldIDelete = 0;
+            cart.forEach(model => {
+                if(model.couleur === itemColor){
+                    model.nombre = 0;
+                }
+                shouldIDelete += parseInt(model.nombre);
+            });
+            //if cart empty, delete cart
+            if (shouldIDelete === 0){
+                localStorage.removeItem(itemId);
+            } else {
+                //Convert cart and add to local storage
+                localStorage.setItem(itemId,`${JSON.stringify(cart)}`);
+            }
+            //update cart and total price
+            item.remove();
+            if (cartTotal.length === 0){
+                let cart = document.getElementById(`cart__items`);
+                let emptyMsg = document.createElement(`p`);
+                emptyMsg.setAttribute(`id`,`emptyMessage`)
+                emptyMsg.textContent = `Panier vide`;
+                cart.appendChild(emptyMsg);
+            }
+            displayPrice(canaps);
+        });
+    } 
 }
