@@ -21,8 +21,18 @@ fetch('http://localhost:3000/api/products/', requestOptions)
         });*/
         displayCart(value);
         displayPrice(value);
-        //modifyQuantity(value);
+        modifyQuantities(value);
         //deleteItem(value);
+
+        //envirronnement de test
+        const cartTotal = document.getElementsByClassName(`cart__item`);
+        console.log(cartTotal);
+        const cart1 = cartTotal[0];
+        console.log(cart1);
+        const dataid = cart1.getAttribute(`data-id`);
+        console.log(dataid);
+        //fin de l'envirronnement de test
+
     })
     .catch(function(err) {
         console.log(`Erreur`); // Une erreur est survenue
@@ -142,10 +152,9 @@ function displayPrice (canaps){
             //collecting the informations of the cart to calculate the price
             cart.forEach(model => {
                 if(model.nombre > 0){
-                    quantity += model.nombre;
+                    quantity += parseInt(model.nombre);
                     price += model.nombre * canap.price ;
                 }});
-            
         }  
     });
     //Display of the total quantity and the total price
@@ -153,4 +162,38 @@ function displayPrice (canaps){
     let totalPrice = document.getElementById(`totalPrice`);
     totalQuantity.textContent = `${quantity}`;
     totalPrice.textContent = `${price}` + `,00`;
+}
+
+//Modification of the quantities of items
+function modifyQuantities (canaps){
+    const cartTotal = document.getElementsByClassName(`cart__item`);
+    //parcours du panier affiché
+    for (let item of cartTotal) {
+        console.log(item);
+        //on récupère l'id et la couleur
+        const itemId = item.getAttribute(`data-id`);
+        console.log(`itemId`);
+        const itemColor = item.getAttribute(`data-color`);
+        //on écoute l'évennement de modification du champs value
+        const inputQte = item.querySelector(`input[name='itemQuantity']`);
+        inputQte.addEventListener('input',function(event){
+            //Collecting the cart from local storage
+            let cart = JSON.parse(localStorage.getItem(itemId));
+            //Modification of the cart
+            cart.forEach(model => {
+                if(model.couleur === itemColor){
+                    model.nombre = event.target.value;
+                }
+            });
+            //Convert cart and add to local storage
+            localStorage.setItem(itemId,`${JSON.stringify(cart)}`);
+            //update total price
+            displayPrice(canaps);
+        });
+    }    
+}
+
+//Deleting an item from the cart
+function deleteItem (canaps){
+    
 }
