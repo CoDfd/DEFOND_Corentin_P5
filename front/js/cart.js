@@ -16,21 +16,13 @@ fetch('http://localhost:3000/api/products/', requestOptions)
       }
     })
     .then(function(value) {
-        /*value.forEach(canap => {
-            console.log(JSON.parse(localStorage.getItem(canap._id)));
-        });*/
         displayCart(value);
         displayPrice(value);
         modifyQuantities(value);
         deleteItem(value);
 
         //envirronnement de test
-        /*const cartTotal = document.getElementsByClassName(`cart__item`);
-        console.log(cartTotal);
-        const cart1 = cartTotal[0];
-        console.log(cart1);
-        const dataid = cart1.getAttribute(`data-id`);
-        console.log(dataid);*/
+        
         //fin de l'envirronnement de test
 
     })
@@ -192,11 +184,11 @@ function modifyQuantities (canaps){
     //parcours du panier affiché
     for (let item of cartTotal) {
         //on récupère l'id et la couleur
-        const itemId = item.getAttribute(`data-id`);
-        const itemColor = item.getAttribute(`data-color`);
+        const itemId = item.dataset.id;
+        const itemColor = item.dataset.color;
         //on écoute l'évennement de modification du champs value
         const inputQte = item.querySelector(`input[name='itemQuantity']`);
-        inputQte.addEventListener('input',function(event){
+        inputQte.addEventListener('change',function(event){
             //Collecting the cart from local storage
             let cart = JSON.parse(localStorage.getItem(itemId));
             //Modification of the cart
@@ -219,8 +211,8 @@ function deleteItem (canaps){
     //parcours du panier affiché
     for (let item of cartTotal) {
         //on récupère l'id et la couleur
-        const itemId = item.getAttribute(`data-id`);
-        const itemColor = item.getAttribute(`data-color`);
+        const itemId = item.dataset.id;
+        const itemColor = item.dataset.color;
         //on écoute l'évennement de modification du champs value
         const itemDlt = item.querySelector(`.deleteItem`);
         itemDlt.addEventListener('click',function(){
