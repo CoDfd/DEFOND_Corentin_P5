@@ -34,6 +34,7 @@ fetch(`http://localhost:3000/api/products/${idProduct}`, requestOptions)
     })
     .catch(function(err) {
         console.log(`Erreur`); // Une erreur est survenue
+        alert(`Erreur de requête API`);
     });
 
 //Display of the image of the product

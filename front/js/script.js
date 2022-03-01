@@ -35,6 +35,7 @@ fetch('http://localhost:3000/api/products/', requestOptions)
     })
     .catch(function(err) {
         console.log(`Erreur`); // Une erreur est survenue
+        alert(`Erreur de requête API`);
     });
 
 //Display of products : inside request

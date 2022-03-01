@@ -20,6 +20,8 @@ fetch('http://localhost:3000/api/products/', requestOptions)
         displayPrice(value);
         modifyQuantities(value);
         deleteItem(value);
+        checkForm();
+        order();
 
         //envirronnement de test
         
@@ -28,6 +30,7 @@ fetch('http://localhost:3000/api/products/', requestOptions)
     })
     .catch(function(err) {
         console.log(`Erreur`); // Une erreur est survenue
+        alert(`Erreur de requête API`);
     });
 
 //Display function of the cart
@@ -245,4 +248,100 @@ function deleteItem (canaps){
             displayPrice(canaps);
         });
     } 
+}
+
+//Checking the validity of the form
+function checkForm (){
+    //Initializing the return response
+    let returnResponse = false;
+    //while(returnResponse === false){
+        //initializing the checks
+        let checkFirstName = false;
+        let checkLastName = false;
+        let checkAddress = false;
+        let checkCity = false;
+        let checkEmail = false;
+        //Check of the first name field
+        const firstName = document.getElementById(`firstName`);
+        firstName.addEventListener(`change`,function(event){
+            if(event.target.value.match(/^[A-Za-z]{2}[A-Za-z]+/)){
+                document.getElementById(`firstNameErrorMsg`).textContent = ` `;
+                checkFirstName = true; 
+            } else {
+                document.getElementById(`firstNameErrorMsg`).textContent = `Veuillez entrer un prénom valide`;
+                checkFirstName = false;
+            }
+        });
+        //Check of the last name field
+        const lastName = document.getElementById(`lastName`);
+        lastName.addEventListener(`change`,function(event){
+            if(event.target.value.match(/^[A-Za-z']{2}[A-Za-z]+/)){
+                document.getElementById(`lastNameErrorMsg`).textContent = ` `;
+                checkLastName = true;
+            } else {
+                document.getElementById(`lastNameErrorMsg`).textContent = `Veuillez entrer un nom valide`;
+                checkLastName = false;
+            }
+        });
+        //Check of the address field
+        const address = document.getElementById(`address`);
+        address.addEventListener(`input`,function(event){
+            if(event.target.value.match(/^.+[0-9]{5}$/)){
+                document.getElementById(`addressErrorMsg`).textContent = ` `;
+                checkAddress = true;
+            } else {
+                document.getElementById(`addressErrorMsg`).innerHTML = `Veuillez entrer une adresse de la forme <br> "18 rue de l'étoile 75001"`;
+                checkAddress = false;
+            }
+        });
+        //Check of the city field
+        const city = document.getElementById(`city`);
+        city.addEventListener(`change`,function(event){
+            if(event.target.value.match(/^[A-Za-z][A-Za-z']+/)){
+                document.getElementById(`cityErrorMsg`).textContent = ` `;
+                checkCity = true;
+            } else {
+                document.getElementById(`cityErrorMsg`).textContent = `Veuillez entrer un nom de ville valide`;
+                checkCity = false;
+            }
+        });
+        //Check of the email field
+        const email = document.getElementById(`email`);
+        email.addEventListener(`change`,function(event){
+            if(event.target.value.match(/^.+@.+[.][A-Za-z]+$/)){
+                document.getElementById(`emailErrorMsg`).textContent = ` `;
+                checkEmail = true;
+            } else {
+                document.getElementById(`emailErrorMsg`).textContent = `Veuillez entrer une adresse e-mail valide`;
+                checkEmail = false;
+            }
+        });
+        //Calculating the response
+        if(checkFirstName && checkLastName && checkAddress && checkCity && checkEmail){
+            returnResponse = true;
+        }
+        console.log(returnResponse);
+    //}
+    return returnResponse;
+}
+
+//Catch order
+function order (){
+    const orderBtn = document.getElementById('order');
+    orderBtn.addEventListener('click',function(){
+        if(checkForm()){
+
+        } else {
+            alert(`Formulaire invalide ou incomplet`)
+        }
+        });
+
+}
+
+//Collecting the value option of an input
+function getInputValue (selectId){
+	/**On récupère l'élement html <input>*/
+	var selectElmt = document.getElementById(selectId);
+	/**On retourne le champs value*/
+	return selectElmt.value;
 }
