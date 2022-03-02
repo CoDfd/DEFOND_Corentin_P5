@@ -20,7 +20,7 @@ fetch('http://localhost:3000/api/products/', requestOptions)
         displayPrice(value);
         modifyQuantities(value);
         deleteItem(value);
-        order();
+        order(value);
 
         //envirronnement de test
         
@@ -47,7 +47,7 @@ function displayCart (canaps){
             }
         } 
     });
-    //Display an empty cart if so
+    //Display an empty cart message if so
     if (emptyCart == true){
         let cart = document.getElementById(`cart__items`);
         let emptyMsg = document.createElement(`p`);
@@ -56,12 +56,28 @@ function displayCart (canaps){
         cart.appendChild(emptyMsg);
         emptyMsgDisplay = true;
     } else {
-        //Case we have to remove the empty message
+        //Case we have to remove the empty cart message
         if (emptyMsgDisplay == true){
             document.getElementById(`emptyMessage`).remove();
             emptyMsgDisplay = false;
         }
     }
+}
+
+//Function to check if the cart is empty
+function isCartEmpty (canaps){
+    //initializing the empty cart
+    let emptyCart = true;
+    //skim through the canaps    
+    canaps.forEach(canap => {
+        //Testing if there is an existing cart for this canap
+        if(localStorage.getItem(canap._id) != null){
+            if (emptyCart == true){
+                emptyCart = false;
+            }
+        } 
+    });
+    return emptyCart ; 
 }
 
 //createArticlesCart : créer les articles et les insère dans un container
@@ -325,19 +341,44 @@ function getContact (contact){
 }
 
 //Catch order
-function order (){
+function order (canaps){
     let contact = {}
+    let products = [];
     const orderBtn = document.getElementById('order');
-    orderBtn.addEventListener('click',function(){
+    orderBtn.addEventListener('click',function(event){
+        event.preventDefault();
         if(checkForm()){
             getContact(contact);
             console.log(contact);
             localStorage.setItem(`contact`,JSON.stringify(contact));
-            //getcart
+            if (isCartEmpty(canaps)){
+                alert(`Panier vide`);
+            } else {
+                products = getCart(canaps);
+                console.log(products);
+                localStorage.setItem(`order`,JSON.stringify(products));
+            }
+            let orderToSend = {contact,products}
+            console.log(orderToSend);
+            sendOrder(orderToSend);
         } else {
             alert(`Formulaire invalide ou incomplet`);
         }
         });
+}
+
+//get cart
+function getCart (canaps){
+    //initializing the order array to return
+    let order = [];
+    //skim through the canaps    
+    canaps.forEach(canap => {
+        //Testing if there is an existing cart for this canap
+        if(localStorage.getItem(canap._id) != null){
+            order.push(canap._id);
+        } 
+    });
+    return order;
 }
 
 //Collecting the value option of an input
@@ -348,5 +389,36 @@ function getInputValue (selectId){
 	return selectElmt.value;
 }
 
+//Fonction qui fait appel à la requete post
+function sendOrder (order){
+    fetch("http://localhost:3000/api/products/order"  , {
+        method: "POST",
+        headers: {
+            "content-type" : "application/json",
+        },
+        body : JSON.stringify(order),
+        redirect: `follow`
+    })
+    .then(function(res) {
+        if (res.ok) {
+          return res.json();
+        }
+      })
+      .then(function(value) {
+        let orderId = value.orderId;
+        window.location.href= `./confirmation.html?id=${orderId}` ; 
+      })
+      .catch(function(err) {
+          console.log(`Erreur`); // Une erreur est survenue
+          alert(`Erreur de requête API`);
+      });
+    
 
-//J'en suis à la ligne 339 : récupérer le cart sous forme d'array de string avec les product_id
+
+}
+
+
+
+
+//J'en suis à : vérifier la valabilité des envois
+//faire la requete post
