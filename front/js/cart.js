@@ -120,11 +120,11 @@ function createContent (canap,model){
 
 //createContentDescription
 function createContentDescription (canap,model){
-    //création de l'élément
+    //creation of the element
     let description = document.createElement(`div`);
     description.classList.add(`cart__item__content__description`);
     
-    //création du contenu
+    //setting of its content
     let name = document.createElement(`h2`);
     name.textContent = `${canap.name}`;
     let color = document.createElement(`p`);
@@ -132,20 +132,19 @@ function createContentDescription (canap,model){
     let price = document.createElement(`p`);
     price.textContent = `${canap.price}` + `,00 €`;
 
-    //Remplissage de l'élément
+    //filling the element
     description.append(name,color,price);
     
     return description;
 }
 
-
 //createContentSettings
 function createContentSettings (model){
-    //création de l'élément
+    //creation of the element
     let settings = document.createElement(`div`);
     settings.classList.add(`cart__item__content__settings`);
     
-    //création du contenu
+    //setting of its content
     let quantity = document.createElement(`div`);
     quantity.classList.add(`cart__item__content__settings__quantity`)
         let qte = document.createElement(`p`);
@@ -166,7 +165,7 @@ function createContentSettings (model){
         supprimer.textContent = `Supprimer`;
     dlt.appendChild(supprimer);
 
-    //Remplissage de l'élément
+    //filling the element
     settings.append(quantity,dlt);
     
     return settings;
@@ -199,12 +198,12 @@ function displayPrice (canaps){
 //Modification of the quantities of items
 function modifyQuantities (canaps){
     const cartTotal = document.getElementsByClassName(`cart__item`);
-    //parcours du panier affiché
+    //skimming through the diplaied cart
     for (let item of cartTotal) {
-        //on récupère l'id et la couleur
+        //collecting id and color
         const itemId = item.dataset.id;
         const itemColor = item.dataset.color;
-        //on écoute l'évennement de modification du champs value
+        //listening the event modification of the value field
         const inputQte = item.querySelector(`input[name='itemQuantity']`);
         inputQte.addEventListener('change',function(event){
             //Collecting the cart from local storage
@@ -226,12 +225,12 @@ function modifyQuantities (canaps){
 //Deleting an item from the cart
 function deleteItem (canaps){
     let cartTotal = document.getElementsByClassName(`cart__item`);
-    //parcours du panier affiché
+    //skimming through the displaied cart
     for (let item of cartTotal) {
-        //on récupère l'id et la couleur
+        //collecting id and color
         const itemId = item.dataset.id;
         const itemColor = item.dataset.color;
-        //on écoute l'évennement de modification du champs value
+        //listening the event of clicking on delete
         const itemDlt = item.querySelector(`.deleteItem`);
         itemDlt.addEventListener('click',function(){
             //Collecting the cart from local storage
@@ -325,7 +324,6 @@ function checkForm (){
         if(checkFirstName && checkLastName && checkAddress && checkCity && checkEmail){
             returnResponse = true;
         }
-        console.log(returnResponse);
     //}
     return returnResponse;
 }
@@ -333,7 +331,6 @@ function checkForm (){
 //Collecting the data of the form
 function getContact (contact){
     contact.firstName = getInputValue(`firstName`);
-    console.log(`step`);
     contact.lastName = getInputValue(`lastName`);
     contact.address = getInputValue(`address`);
     contact.city = getInputValue(`city`);
@@ -349,17 +346,15 @@ function order (canaps){
         event.preventDefault();
         if(checkForm()){
             getContact(contact);
-            console.log(contact);
             localStorage.setItem(`contact`,JSON.stringify(contact));
             if (isCartEmpty(canaps)){
                 alert(`Panier vide`);
             } else {
+// /!\ est-ce que je dois faire une fonction de check que l'array products est un array de string, et que ceux ci sont bien dans le catalogue?
                 products = getCart(canaps);
-                console.log(products);
                 localStorage.setItem(`order`,JSON.stringify(products));
             }
             let orderToSend = {contact,products}
-            console.log(orderToSend);
             sendOrder(orderToSend);
         } else {
             alert(`Formulaire invalide ou incomplet`);
@@ -389,7 +384,7 @@ function getInputValue (selectId){
 	return selectElmt.value;
 }
 
-//Fonction qui fait appel à la requete post
+//Function that call the POST request
 function sendOrder (order){
     fetch("http://localhost:3000/api/products/order"  , {
         method: "POST",

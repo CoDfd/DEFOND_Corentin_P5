@@ -1,18 +1,3 @@
-/*const catalogue = 0;
-
-fetch('http://localhost:3000/api/products') 
-    .then(res => {
-        if (res.ok) {
-            return res.json();
-        } else {
-            return Promise.reject(res.status);
-        }
-    })
-    .then(res => console.log(res))
-    .catch(err => console.log(`Erreur`));
-*/
-
-
 //initialization of API request
 var myHeaders = new Headers();
 myHeaders.append("Content-Type", "application/json");
@@ -92,11 +77,3 @@ function createLink (canap){
     return link;
 }
 
-
-/*
-localStorage.setItem("panier","bnjour")*/
-console.log(localStorage.getItem("panier"));
-/* tab --> chaine de caractère ou inverse
-json.stringify(array) := 'string'
-json.parse('string') := array
-*/

@@ -77,7 +77,6 @@ function addToCart (canap){
 function modifyCart (canap) {
     //Collecting existing cart (if not, creating it) and emptying local storage
     let cart = collectCart(canap);
-    console.log(cart);
     //Collecting data to add to cart
     const color = getSelectValue('colors');
     const number = parseInt(getInputValue('quantity'));
@@ -111,25 +110,17 @@ function collectCart (canap){
         localStorage.removeItem(`${canap._id}`);
     }
     return cart;
-    console.log(cart);
 }
 
 //Collecting the value option of a select
 function getSelectValue (selectId){
-	/**On récupère l'élement html <select>*/
 	var selectElmt = document.getElementById(selectId);
-	/**
-	selectElmt.options correspond au tableau des balises <option> du select
-	selectElmt.selectedIndex correspond à l'index du tableau options qui est actuellement sélectionné
-	*/
 	return selectElmt.options[selectElmt.selectedIndex].value;
 }
 
 //Collecting the value option of an input
 function getInputValue (selectId){
-	/**On récupère l'élement html <input>*/
 	var selectElmt = document.getElementById(selectId);
-	/**On retourne le champs value*/
 	return selectElmt.value;
 }
 
