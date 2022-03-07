@@ -1,4 +1,4 @@
-//initialization of API request
+/*//initialization of API request
 var myHeaders = new Headers();
 myHeaders.append("Content-Type", "application/json");
 
@@ -6,35 +6,83 @@ var requestOptions = {
   method: 'GET',
   headers: myHeaders,
   redirect: 'follow'
-};
+};*/
 
-//call API request
-fetch('http://localhost:3000/api/products/', requestOptions)
+
+//Réacteur du programme
+
+displayAll()
+    .then((onResolved)=>{
+        modifyQuantities();
+        deleteItem();
+        order();
+    })
+    .catch(function(err) {
+        console.log(`Erreur d'affichage du panier`); // Une erreur est survenue
+        alert(`Erreur d'affichage du panier`);
+    });
+    
+
+//call API requests
+async function getCanaps (){
+    let catalogue;
+    await fetch('http://localhost:3000/api/products/', {
+        method: 'GET',
+        headers: {
+            "content-type" : "application/json",
+        },
+        redirect: 'follow'
+    })
     .then(function(res) {
       if (res.ok) {
         return res.json();
       }
     })
     .then(function(value) {
-        displayCart(value);
-        displayPrice(value);
-        modifyQuantities(value);
-        deleteItem(value);
-        order(value);
-
-        //envirronnement de test
-        
-        //fin de l'envirronnement de test
-
+        catalogue = value;
     })
     .catch(function(err) {
         console.log(`Erreur`); // Une erreur est survenue
         alert(`Erreur de requête API`);
     });
+    return catalogue; 
+}
+
+async function getCanap (canapId){
+    let canap;
+    await fetch(`http://localhost:3000/api/products/${canapId}`, {
+        method: 'GET',
+        headers: {
+            "content-type" : "application/json",
+        },
+        redirect: 'follow'
+    })
+    .then(function(res) {
+      if (res.ok) {
+        return res.json();
+      }
+    })
+    .then(function(value) {
+        canap = value;
+    })
+    .catch(function(err) {
+        console.log(`Erreur`); // Une erreur est survenue
+    });
+    return canap;
+}
+
+//Display all
+async function displayAll (){
+    await displayCart();
+    await displayPrice();
+    //when the two previous functions are done, send back a Promise object that is resolved 
+    return Promise.resolve();
+}
 
 //Display function of the cart
-function displayCart (canaps){
+async function displayCart (){
     //initializing the empty cart
+    let canaps = await getCanaps();
     let emptyCart = true;
     let emptyMsgDisplay = false;
     //skim through the canaps    
@@ -47,6 +95,17 @@ function displayCart (canaps){
             }
         } 
     });
+    /*//skim through the cart
+    for (var i = 0; i < localStorage.length; i++) {
+        //Testing if there is not an existing cart 
+        if(localStorage.key(i) != null){
+            let canap = getCanap(localStorage.key(i));
+            createArticlesCart(canap);
+            if (emptyCart == true){
+                emptyCart = false;
+            }
+        }
+    }*/
     //Display an empty cart message if so
     if (emptyCart == true){
         let cart = document.getElementById(`cart__items`);
@@ -172,22 +231,26 @@ function createContentSettings (model){
 }
 
 //Display of the price of the total cart
-function displayPrice (canaps){
+ async function displayPrice (){
     let quantity = 0;
     let price = 0;
-    //collecting the informations of all the carts to calculate the total quantity and the total price
-    canaps.forEach(canap => {
-        //Testing if there is not an existing cart for this canap
-        if(localStorage.getItem(canap._id) != null){
-            let cart = JSON.parse(localStorage.getItem(canap._id));
+    //Collecting the informations of the cart
+    for (var i = 0; i < localStorage.length; i++) {
+        let cart = JSON.parse(localStorage.getItem(localStorage.key(i)));
+        let canap = await getCanap(localStorage.key(i));
+        try {
             //collecting the informations of the cart to calculate the price
             cart.forEach(model => {
                 if(model.nombre > 0){
                     quantity += parseInt(model.nombre);
                     price += model.nombre * canap.price ;
                 }});
-        }  
-    });
+        } catch {
+            //if the local storage outpu was not a cart, next in for
+            continue;
+        }
+        
+      }
     //Display of the total quantity and the total price
     let totalQuantity = document.getElementById(`totalQuantity`);
     let totalPrice = document.getElementById(`totalPrice`);
@@ -196,7 +259,7 @@ function displayPrice (canaps){
 }
 
 //Modification of the quantities of items
-function modifyQuantities (canaps){
+function modifyQuantities (){
     const cartTotal = document.getElementsByClassName(`cart__item`);
     //skimming through the diplaied cart
     for (let item of cartTotal) {
@@ -217,13 +280,13 @@ function modifyQuantities (canaps){
             //Convert cart and add to local storage
             localStorage.setItem(itemId,`${JSON.stringify(cart)}`);
             //update total price
-            displayPrice(canaps);
+            displayPrice();
         });
     }    
 }
 
 //Deleting an item from the cart
-function deleteItem (canaps){
+function deleteItem (){
     let cartTotal = document.getElementsByClassName(`cart__item`);
     //skimming through the displaied cart
     for (let item of cartTotal) {
@@ -259,7 +322,7 @@ function deleteItem (canaps){
                 emptyMsg.textContent = `Panier vide`;
                 cart.appendChild(emptyMsg);
             }
-            displayPrice(canaps);
+            displayPrice();
         });
     } 
 }
@@ -338,7 +401,8 @@ function getContact (contact){
 }
 
 //Catch order
-function order (canaps){
+async function order (){
+    const canaps = await getCanaps();
     let contact = {}
     let products = [];
     const orderBtn = document.getElementById('order');
@@ -346,16 +410,16 @@ function order (canaps){
         event.preventDefault();
         if(checkForm()){
             getContact(contact);
-            localStorage.setItem(`contact`,JSON.stringify(contact));
-            if (isCartEmpty(canaps)){
-                alert(`Panier vide`);
-            } else {
+            if (localStorage.length > 0){
 // /!\ est-ce que je dois faire une fonction de check que l'array products est un array de string, et que ceux ci sont bien dans le catalogue?
-                products = getCart(canaps);
+                products = getCart();
                 localStorage.setItem(`order`,JSON.stringify(products));
+            } else {
+                alert(`Panier vide`);
             }
-            let orderToSend = {contact,products}
-            sendOrder(orderToSend);
+            //let orderToSend = {contact,products}
+            //localStorage.setItem(`contact`,JSON.stringify(contact));
+            sendOrder(contact,products);
         } else {
             alert(`Formulaire invalide ou incomplet`);
         }
@@ -363,16 +427,25 @@ function order (canaps){
 }
 
 //get cart
-function getCart (canaps){
+function getCart (){
     //initializing the order array to return
     let order = [];
+    //skim through the cart
+    for (var i = 0; i < localStorage.length; i++) {
+        try {
+            order.push(localStorage.key(i));
+        } catch {
+            //if the local storage outpu was not a cart, next in for
+            continue;
+        }
+    }
     //skim through the canaps    
-    canaps.forEach(canap => {
+    /*canaps.forEach(canap => {
         //Testing if there is an existing cart for this canap
         if(localStorage.getItem(canap._id) != null){
             order.push(canap._id);
         } 
-    });
+    });*/
     return order;
 }
 
@@ -385,35 +458,58 @@ function getInputValue (selectId){
 }
 
 //Function that call the POST request
-function sendOrder (order){
-    fetch("http://localhost:3000/api/products/order"  , {
-        method: "POST",
-        headers: {
-            "content-type" : "application/json",
-        },
-        body : JSON.stringify(order),
-        redirect: `follow`
-    })
-    .then(function(res) {
-        if (res.ok) {
-          return res.json();
-        }
-      })
-      .then(function(value) {
-        let orderId = value.orderId;
-        window.location.href= `./confirmation.html?id=${orderId}` ; 
-      })
-      .catch(function(err) {
-          console.log(`Erreur`); // Une erreur est survenue
-          alert(`Erreur de requête API`);
-      });
-    
-
-
+function sendOrder (contact, products){
+    if(checkOrder(products)){
+        let order = {contact,products}
+        fetch("http://localhost:3000/api/products/order"  , {
+            method: "POST",
+            headers: {
+                "content-type" : "application/json",
+            },
+            body : JSON.stringify(order),
+            redirect: `follow`
+        })
+        .then(function(res) {
+            if (res.ok) {
+            return res.json();
+            }
+        })
+        .then(function(value) {
+            let orderId = value.orderId;
+            window.location.href= `./confirmation.html?id=${orderId}` ; 
+        })
+        .catch(function(err) {
+            console.log(`Erreur`); // Une erreur est survenue
+            alert(`Erreur de requête API`);
+        });
+    }
+    else {
+        alert('Erreur : la commande ne peut aboutir');
+    }
 }
 
-
-
-
-//J'en suis à : vérifier la valabilité des envois
-//faire la requete post
+//check order
+async function checkOrder (products){
+    let check = true;
+    let catalogueId = [];
+    const canaps = await getCanaps();
+    canaps.forEach(canap => {
+        catalogueId.push(canap._id);
+    });
+    /*products.forEach(product => {
+        if(catalogueId.includes(product) === false){
+            check = false;
+            break;
+        }
+    });*/
+    let i = 0;
+    while (i < products.length){
+        if(typeof(products[i]) === 'string' && catalogueId.includes(products[i])){
+            i ++;
+        } else {
+            check = false;
+            break;
+        }
+    }
+    return check;
+}
