@@ -413,7 +413,7 @@ async function order (){
             if (localStorage.length > 0){
 // /!\ est-ce que je dois faire une fonction de check que l'array products est un array de string, et que ceux ci sont bien dans le catalogue?
                 products = getCart();
-                localStorage.setItem(`order`,JSON.stringify(products));
+                //localStorage.setItem(`order`,JSON.stringify(products));
             } else {
                 alert(`Panier vide`);
             }

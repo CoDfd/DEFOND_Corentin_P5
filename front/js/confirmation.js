@@ -10,4 +10,4 @@ let OrderIdDisplay = document.getElementById(`orderId`);
 OrderIdDisplay.innerHTML = `<br>` + orderId;
 
 //Emptying the local storage
-//localStorage.clear();
+localStorage.clear();
