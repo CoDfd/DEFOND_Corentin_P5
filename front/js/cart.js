@@ -269,18 +269,22 @@ function modifyQuantities (){
         //listening the event modification of the value field
         const inputQte = item.querySelector(`input[name='itemQuantity']`);
         inputQte.addEventListener('change',function(event){
-            //Collecting the cart from local storage
-            let cart = JSON.parse(localStorage.getItem(itemId));
-            //Modification of the cart
-            cart.forEach(model => {
-                if(model.couleur === itemColor){
-                    model.nombre = event.target.value;
-                }
-            });
-            //Convert cart and add to local storage
-            localStorage.setItem(itemId,`${JSON.stringify(cart)}`);
-            //update total price
-            displayPrice();
+            try {
+                //Collecting the cart from local storage
+                let cart = JSON.parse(localStorage.getItem(itemId));
+                //Modification of the cart
+                cart.forEach(model => {
+                    if(model.couleur === itemColor){
+                        model.nombre = event.target.value;
+                    }
+                });
+                //Convert cart and add to local storage
+                localStorage.setItem(itemId,`${JSON.stringify(cart)}`);
+                //update total price
+                displayPrice();
+            } catch {
+                alert(`Impossible d'executer cette action`);
+            }
         });
     }    
 }
@@ -296,33 +300,37 @@ function deleteItem (){
         //listening the event of clicking on delete
         const itemDlt = item.querySelector(`.deleteItem`);
         itemDlt.addEventListener('click',function(){
-            //Collecting the cart from local storage
-            let cart = JSON.parse(localStorage.getItem(itemId));
-            //Modification of the cart
-            let shouldIDelete = 0;
-            cart.forEach(model => {
-                if(model.couleur === itemColor){
-                    model.nombre = 0;
+            try {
+                //Collecting the cart from local storage
+                let cart = JSON.parse(localStorage.getItem(itemId));
+                //Modification of the cart
+                let shouldIDelete = 0;
+                cart.forEach(model => {
+                    if(model.couleur === itemColor){
+                        model.nombre = 0;
+                    }
+                    shouldIDelete += parseInt(model.nombre);
+                });
+                //if cart empty, delete cart
+                if (shouldIDelete === 0){
+                    localStorage.removeItem(itemId);
+                } else {
+                    //Convert cart and add to local storage
+                    localStorage.setItem(itemId,`${JSON.stringify(cart)}`);
                 }
-                shouldIDelete += parseInt(model.nombre);
-            });
-            //if cart empty, delete cart
-            if (shouldIDelete === 0){
-                localStorage.removeItem(itemId);
-            } else {
-                //Convert cart and add to local storage
-                localStorage.setItem(itemId,`${JSON.stringify(cart)}`);
+                //update cart and total price
+                item.remove();
+                if (cartTotal.length === 0){
+                    let cart = document.getElementById(`cart__items`);
+                    let emptyMsg = document.createElement(`p`);
+                    emptyMsg.setAttribute(`id`,`emptyMessage`)
+                    emptyMsg.textContent = `Panier vide`;
+                    cart.appendChild(emptyMsg);
+                }
+                displayPrice();
+            } catch {
+                alert(`Impossible d'executer cette action`);
             }
-            //update cart and total price
-            item.remove();
-            if (cartTotal.length === 0){
-                let cart = document.getElementById(`cart__items`);
-                let emptyMsg = document.createElement(`p`);
-                emptyMsg.setAttribute(`id`,`emptyMessage`)
-                emptyMsg.textContent = `Panier vide`;
-                cart.appendChild(emptyMsg);
-            }
-            displayPrice();
         });
     } 
 }
