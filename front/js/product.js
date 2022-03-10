@@ -70,6 +70,7 @@ function addToCart (canap){
     const btn = document.getElementById('addToCart');
     btn.addEventListener('click',function(){
         modifyCart(canap);
+        alert(`Le produit a bien été ajouté au panier`);
         });
 }
 
